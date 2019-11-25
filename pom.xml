@@ -36,21 +36,31 @@
             </exclusions>
         </dependency>
 
+        <!--thymeleaf : Java front-end template engine -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+        <!-- fastjson : convenient for conversion between various objects-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.62</version>
         </dependency>
 
+        <!-- okhttp3 : the lightweight web framework and support the http and https -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.2.2</version>
+        </dependency>
+
+        <!-- h2 Database the lightweight embedded database / Lower learning costs-->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
         </dependency>
 
 
