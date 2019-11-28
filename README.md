@@ -27,3 +27,6 @@ create table tab_user
     gmt_modified bigint       null
 );
 ```
+
+## 测试2：
+同样测试远端同步
