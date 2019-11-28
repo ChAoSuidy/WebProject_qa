@@ -2,15 +2,18 @@ package com.discussion.qa.controller;
 
 import com.discussion.qa.dto.AccessTokenDTO;
 import com.discussion.qa.dto.GithubUser;
+import com.discussion.qa.mapper.UserMapper;
+import com.discussion.qa.model.User;
 import com.discussion.qa.provider.GithubProvider;
+import com.discussion.qa.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 /**
  * Oauth Apps
@@ -23,6 +26,7 @@ public class OauthController {
     @Autowired
     private GithubProvider githubProvider;
 
+
     //@ConfigurationProperties("github.client.id")
     @Value("${github.client.id}")
     private String client_id;
@@ -30,6 +34,17 @@ public class OauthController {
     private String client_secret;
     @Value("${github.redirect.uri}")
     private String redirect_uri;
+
+    @Autowired(required = false)
+    private UserMapper userMapper;
+
+    /**
+     * 这个错误是因为Mybatis的启动器并不是Spring官方出的，所以Spring会认为UserMapper对象没有被注入容器。
+     * 实际上已经UserMapper已经通过@Mapper注册，并且通过@Autowired注解注入容器了。
+     * 大家可以在报错的地方alt+enter，在第一个选项inspection里选择忽略掉这个错误，实际上不影响应用运行的。
+     */
+//    @Autowired
+//    private UserService userService;
 
 
     @GetMapping("/callback")
@@ -48,11 +63,22 @@ public class OauthController {
         //向Github发送获取accessToken的请求
         String token = githubProvider.getAccessToken(accessTokenDTO);
         //System.out.println(token);
-        GithubUser user = githubProvider.getUser(token);
-        //System.out.println(user.getName());
-        if(user != null){
+        GithubUser githubUser = githubProvider.getUser(token);
+        //System.out.println(githubUser.getName());
+        if(githubUser != null){
+            //user is not null, put the user info into database
+            User user = new User();
+            user.setName(githubUser.getName());
+            user.setAccountId(String.valueOf(githubUser.getId()));
+            user.setToken(UUID.randomUUID().toString());
+            user.setGmtCreate(System.currentTimeMillis());
+            user.setGmtModified(user.getGmtCreate());
+
+            userMapper.insert(user);
+            //userService.addUser(user);
+
             //登录成功，写cookie和session
-            request.getSession().setAttribute("user", user);
+            request.getSession().setAttribute("user", githubUser);
             //重定向是将网址重新加载
             return "redirect:/";
 
