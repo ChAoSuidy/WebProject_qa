@@ -12,7 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 /**
@@ -50,7 +52,8 @@ public class OauthController {
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code") String code,
                            @RequestParam(name = "state") String state,
-                            HttpServletRequest request) {
+                            HttpServletRequest request,
+                            HttpServletResponse response ) {
 
         //使用Github发来的code完成accessToken的属性设置
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
@@ -61,24 +64,28 @@ public class OauthController {
         accessTokenDTO.setState(state);
 
         //向Github发送获取accessToken的请求
-        String token = githubProvider.getAccessToken(accessTokenDTO);
+        String accessToken = githubProvider.getAccessToken(accessTokenDTO);
         //System.out.println(token);
-        GithubUser githubUser = githubProvider.getUser(token);
+        GithubUser githubUser = githubProvider.getUser(accessToken);
         //System.out.println(githubUser.getName());
         if(githubUser != null){
             //user is not null, put the user info into database
             User user = new User();
             user.setName(githubUser.getName());
             user.setAccountId(String.valueOf(githubUser.getId()));
-            user.setToken(UUID.randomUUID().toString());
+            String token = UUID.randomUUID().toString();
+            user.setToken(token);
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
 
             userMapper.insert(user);
             //userService.addUser(user);
 
+            response.addCookie(new Cookie("token", token));
+
             //登录成功，写cookie和session
-            request.getSession().setAttribute("user", githubUser);
+            //request.getSession().setAttribute("user", githubUser);
+
             //重定向是将网址重新加载
             return "redirect:/";
 
