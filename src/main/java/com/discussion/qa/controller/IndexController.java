@@ -11,17 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * 默认主页
- * <p>
+ *
  * 将token从session存入Cookie，绕过服务器，直接用cookie和数据库校验登录，避免了服务器重启时用户登录信息重置，重复登录的繁琐操作。
  */
 @Controller
 public class IndexController {
 
-//    @GetMapping("/hello")
-//    public String hello(@RequestParam(name = "name")String name, Model model){
-//        model.addAttribute("name", name);
-//        return "index";
-//    }
 
     @Autowired
     private UserMapper userMapper;

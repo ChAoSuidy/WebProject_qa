@@ -5,7 +5,6 @@ import com.discussion.qa.dto.GithubUser;
 import com.discussion.qa.mapper.UserMapper;
 import com.discussion.qa.model.User;
 import com.discussion.qa.provider.GithubProvider;
-import com.discussion.qa.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -47,13 +46,11 @@ public class OauthController {
      */
 //    @Autowired
 //    private UserService userService;
-
-
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code") String code,
                            @RequestParam(name = "state") String state,
-                            HttpServletRequest request,
-                            HttpServletResponse response ) {
+                           HttpServletRequest request,
+                           HttpServletResponse response) {
 
         //使用Github发来的code完成accessToken的属性设置
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
@@ -68,7 +65,7 @@ public class OauthController {
         //System.out.println(token);
         GithubUser githubUser = githubProvider.getUser(accessToken);
         //System.out.println(githubUser.getName());
-        if(githubUser != null){
+        if (githubUser != null && githubUser.getId() != null) {
             //user is not null, put the user info into database
             User user = new User();
             user.setName(githubUser.getName());
@@ -77,7 +74,7 @@ public class OauthController {
             user.setToken(token);
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
-
+            user.setImageUrl(githubUser.getAvatar_url());
             userMapper.insert(user);
             //userService.addUser(user);
 
@@ -89,7 +86,7 @@ public class OauthController {
             //重定向是将网址重新加载
             return "redirect:/";
 
-        }else{
+        } else {
             //登录失败，重新登录
             return "redirect:/";
         }

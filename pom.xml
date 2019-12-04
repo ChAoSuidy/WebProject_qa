@@ -90,9 +90,13 @@
             <scope>runtime</scope>
         </dependency>
 
-
-
-
+        <!-- Lombok：省去了set和get方法-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.10</version>
+            <scope>provided</scope>
+        </dependency>
 
 
     </dependencies>
