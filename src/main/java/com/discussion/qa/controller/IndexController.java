@@ -1,13 +1,17 @@
 package com.discussion.qa.controller;
 
+import com.discussion.qa.dto.EpiphanyDTO;
 import com.discussion.qa.mapper.UserMapper;
 import com.discussion.qa.model.User;
+import com.discussion.qa.service.EpiphanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 默认主页
@@ -20,9 +24,12 @@ public class IndexController {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private EpiphanyService epiphanyService;
 
     @GetMapping("/")
-    public String index(HttpServletRequest request) {
+    public String index(HttpServletRequest request,
+                        Model model) {
 
         /**
          * get the cookie from front-end by request
@@ -50,6 +57,9 @@ public class IndexController {
                 }
             }
         }
+
+        List<EpiphanyDTO> epiphanyDTOList = epiphanyService.getEpiphanyList();
+        model.addAttribute("epiphanies",epiphanyDTOList);
 
         return "index";
     }
